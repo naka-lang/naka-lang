@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>風雷神風スロット</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <canvas id="slot-screen" width="960" height="600"></canvas>
+        <div id="ui-panel">
+            <div class="display-group">
+                <label>CREDIT</label>
+                <div id="credit-display">5000</div>
+            </div>
+            <div class="display-group">
+                <label>BET</label>
+                <div id="bet-display">0</div>
+            </div>
+            <div class="display-group">
+                <label>WIN</label>
+                <div id="win-display">0</div>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="stats-group">
+                <div>IN: <span id="stat-in">0</span></div>
+                <div>OUT: <span id="stat-out">0</span></div>
+                <div>RTP: <span id="stat-rtp">0%</span></div>
+            </div>
+
+            <audio id="bgm" src="assets/bgm.mp3" loop></audio>
+            <audio id="bgm-freegame" src="assets/bgm_freegame.mp3" loop></audio>
+            <audio id="se-stop" src="assets/se_stop.mp3"></audio>
+            <audio id="se-win" src="assets/se_win.mp3"></audio>
+            <audio id="se-thunder" src="assets/se_thunder.mp3"></audio>
+            <audio id="se-upgrade" src="assets/se_upgrade.mp3"></audio>
+            <audio id="se-wind" src="assets/se_wind.mp3"></audio>
+            <audio id="se-raijin-cutin" src="assets/se_raijin_cutin.mp3"></audio>
+            <audio id="se-fujin-cutin" src="assets/se_fujin_cutin.mp3"></audio>
+
+            <div class="button-group">
+                <button id="btn-bet1" class="chk-btn">BET 1</button>
+                <button id="btn-bet-max" class="chk-btn">MAX BET</button>
+                <button id="btn-spin" class="chk-btn large confirm">START</button>
+                <button id="btn-auto" class="chk-btn">AUTO ON</button>
+                <button id="btn-debug" class="chk-btn small">DEBUG</button>
+                <button id="btn-help" class="chk-btn small">HELP</button>
+            </div>
+        </div>
+
+        <div id="message-overlay" class="hidden">
+            <div id="message-content"></div>
+        </div>
+
+        <!-- Bonus Game Overlay -->
+        <div id="bonus-overlay" class="hidden">
+            <h2>寿司ボーナス</h2>
+            <p>寿司を選んで合格を目指せ！</p>
+            <div id="sushi-container"></div>
+            <div id="bonus-result"></div>
+        </div>
+
+        <!-- God Feature Overlay (Character Descent) -->
+        <div id="god-overlay" class="hidden">
+            <img id="god-img" src="" alt="God Appearance">
+        </div>
+
+        <!-- Expanded Wilds Overlays (Free Game) -->
+        <div id="expanded-wilds" class="hidden">
+            <div id="expanded-raijin" class="expanded-wild-reel" style="left: 105px;"></div>
+            <div id="expanded-fujin" class="expanded-wild-reel" style="left: 705px;"></div>
+        </div>
+
+        <!-- Free Game Counter -->
+        <div id="free-game-counter" class="hidden"
+            style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-size: 3rem; color: gold; font-weight: bold; text-shadow: 0 0 10px red; z-index: 60;">
+            FREE SPINS: <span id="free-spins-num">0</span>
+        </div>
+
+        <!-- Notice Effect Overlay (Lightning/Tornado) -->
+        <div id="notice-overlay" class="hidden">
+            <!-- Images injected or toggled via JS -->
+            <img id="notice-lightning" src="assets/effect_lightning.png" class="hidden">
+            <img id="notice-tornado" src="assets/effect_tornado.png" class="hidden">
+        </div>
+
+        <!-- Help Overlay -->
+        <div id="help-overlay" class="hidden">
+            <div class="help-content">
+                <h2>PAYOUT TABLE (x Line Bet)</h2>
+                <div class="payout-table">
+                    <!-- Headers -->
+                    <div class="payout-row payout-header">
+                        <div class="payout-cell">SYMBOL</div>
+                        <div class="payout-cell">5x</div>
+                        <div class="payout-cell">4x</div>
+                        <div class="payout-cell">3x</div>
+                        <div class="payout-cell">2x</div>
+                    </div>
+                    <!-- OIRAN -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-3"></div>
+                        </div>
+                        <div class="payout-cell">2500</div>
+                        <div class="payout-cell">1000</div>
+                        <div class="payout-cell">100 / V:10</div>
+                        <div class="payout-cell">10 / V:-</div>
+                    </div>
+                    <!-- FUJIN -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-1"></div>
+                        </div>
+                        <div class="payout-cell">250</div>
+                        <div class="payout-cell">150</div>
+                        <div class="payout-cell">50 / V:5</div>
+                        <div class="payout-cell">5</div>
+                    </div>
+                    <!-- RAIJIN -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-2"></div>
+                        </div>
+                        <div class="payout-cell">150</div>
+                        <div class="payout-cell">100</div>
+                        <div class="payout-cell">30 / V:4</div>
+                        <div class="payout-cell">3</div>
+                    </div>
+                    <!-- DRUM -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-5"></div>
+                        </div>
+                        <div class="payout-cell">100</div>
+                        <div class="payout-cell">50</div>
+                        <div class="payout-cell">20 / V:3</div>
+                        <div class="payout-cell">2 / V:-</div>
+                    </div>
+                    <!-- FAN -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-4"></div>
+                        </div>
+                        <div class="payout-cell">75</div>
+                        <div class="payout-cell">30</div>
+                        <div class="payout-cell">10 / V:2</div>
+                        <div class="payout-cell">-</div>
+                    </div>
+                    <!-- DARUMA -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-14"></div>
+                        </div>
+                        <div class="payout-cell">75</div>
+                        <div class="payout-cell">30</div>
+                        <div class="payout-cell">10 / V:2</div>
+                        <div class="payout-cell">-</div>
+                    </div>
+                    <!-- A -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-6"></div>
+                        </div>
+                        <div class="payout-cell">50</div>
+                        <div class="payout-cell">20</div>
+                        <div class="payout-cell">5 / V:1</div>
+                        <div class="payout-cell">-</div>
+                    </div>
+                    <!-- K -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-7"></div>
+                        </div>
+                        <div class="payout-cell">50</div>
+                        <div class="payout-cell">20</div>
+                        <div class="payout-cell">5 / V:1</div>
+                        <div class="payout-cell">-</div>
+                    </div>
+                    <!-- Q -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-8" style="transform:scale(0.8); margin:-5px;"></div>
+                        </div>
+                        <div class="payout-cell">25</div>
+                        <div class="payout-cell">10</div>
+                        <div class="payout-cell">5 / V:1</div>
+                        <div class="payout-cell">-</div>
+                    </div>
+                    <!-- J -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-9" style="transform:scale(0.8); margin:-5px;"></div>
+                        </div>
+                        <div class="payout-cell">25</div>
+                        <div class="payout-cell">10</div>
+                        <div class="payout-cell">5 / V:1</div>
+                        <div class="payout-cell">-</div>
+                    </div>
+                    <!-- 10 -->
+                    <div class="payout-row">
+                        <div class="payout-cell">
+                            <div class="payout-sym sym-10" style="transform:scale(0.8); margin:-5px;"></div>
+                        </div>
+                        <div class="payout-cell">25</div>
+                        <div class="payout-cell">10</div>
+                        <div class="payout-cell">5 / V:1</div>
+                        <div class="payout-cell">-</div>
+                    </div>
+                </div>
+                <button id="btn-help-return" class="chk-btn large confirm">RETURN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preload Assets -->
+    <div id="asset-preload" style="display:none;">
+        <img id="img-symbols" src="assets/symbols.png" alt="symbols">
+        <img id="img-bg" src="assets/bg.png" alt="background">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
