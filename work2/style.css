@@ -1,0 +1,647 @@
+@import url('https://fonts.googleapis.com/css2?family=Sawarabi+Mincho&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a;
+    color: #fff;
+    font-family: 'Sawarabi Mincho', serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#game-container {
+    position: relative;
+    width: 960px;
+    height: 720px;
+    background-color: #000;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    /* Gold glow */
+    border: 4px solid #b8860b;
+    /* DarkGoldenRod */
+}
+
+#slot-screen {
+    background-color: #222;
+    background-image: url('assets/bg.png');
+    background-size: cover;
+    background-position: center;
+}
+
+#ui-panel {
+    height: 120px;
+    background: linear-gradient(to bottom, #4a0e0e, #2a0000);
+    /* Dark red gradient */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+    border-top: 2px solid #daa520;
+}
+
+.display-group {
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 5px 15px;
+    border-radius: 5px;
+    border: 1px solid #666;
+}
+
+.display-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: #ccc;
+    margin-bottom: 2px;
+}
+
+.display-group div {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffeb3b;
+    /* Yellow */
+    font-family: monospace;
+}
+
+.stats-group {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stats-group span {
+    color: #fff;
+    font-weight: bold;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.chk-btn {
+    background: linear-gradient(to bottom, #555, #333);
+    border: 1px solid #777;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-family: 'Sawarabi Mincho', serif;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.1s;
+}
+
+.chk-btn:active {
+    transform: scale(0.95);
+    background: linear-gradient(to bottom, #333, #555);
+}
+
+.chk-btn.large {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+}
+
+.chk-btn.confirm {
+    background: linear-gradient(to bottom, #d32f2f, #b71c1c);
+    /* Red */
+    border-color: #e57373;
+}
+
+.chk-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#message-overlay,
+#bonus-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+#message-content {
+    font-size: 3rem;
+    color: #ffd700;
+    text-shadow: 0 0 10px #ff0000;
+    animation: pulse 1s infinite alternate;
+}
+
+/* Bonus Game Styles */
+#help-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+}
+
+.help-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    color: #fff;
+    padding: 20px;
+}
+
+.payout-table {
+    display: grid;
+    grid-template-columns: auto repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 800px;
+    border: 2px solid #daa520;
+    padding: 20px;
+    background-color: rgba(50, 0, 0, 0.8);
+    border-radius: 10px;
+}
+
+.payout-header {
+    font-weight: bold;
+    color: #ffd700;
+    text-align: center;
+    border-bottom: 2px solid #daa520;
+    padding-bottom: 5px;
+    font-size: 1.2rem;
+}
+
+.payout-row {
+    display: contents;
+}
+
+.payout-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(218, 165, 32, 0.3);
+}
+
+.payout-sym {
+    width: 100px;
+    height: 85px;
+    background-image: url('assets/symbols.png');
+    background-position-x: -462px;
+    transform: scale(0.6);
+    /* Scale down for table */
+    transform-origin: center;
+    margin: -15px;
+    /* Compensate for scale spacing */
+}
+
+/* Sprite Positions based on ID * 85px */
+.sym-0 {
+    background-position-y: 0px;
+}
+
+/* WILD */
+.sym-1 {
+    background-position-y: -85px;
+}
+
+/* FUJIN */
+.sym-2 {
+    background-position-y: -170px;
+}
+
+/* RAIJIN */
+.sym-3 {
+    background-position-y: -255px;
+}
+
+/* OIRAN */
+.sym-4 {
+    background-position-y: -340px;
+}
+
+/* FAN */
+.sym-5 {
+    background-position-y: -425px;
+}
+
+/* DRUM */
+.sym-6 {
+    background-position-y: -510px;
+}
+
+/* A */
+.sym-7 {
+    background-position-y: -595px;
+}
+
+/* K */
+.sym-8 {
+    background-position-y: -680px;
+}
+
+/* Q */
+.sym-9 {
+    background-position-y: -765px;
+}
+
+/* J */
+.sym-10 {
+    background-position-y: -850px;
+}
+
+.sym-14 {
+    background-position-y: -1190px;
+}
+
+/* 10 */
+
+.chk-btn.small {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    background: linear-gradient(to bottom, #444, #222);
+}
+
+#sushi-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 20px;
+}
+
+.sushi-plate {
+    width: 100px;
+    height: 100px;
+    background-color: #eee;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: 5px solid #8b4513;
+    transition: transform 0.2s;
+    background-image: radial-gradient(circle, #fff, #ddd);
+    position: relative;
+    /* Anchor absolute children */
+}
+
+.sushi-plate:hover {
+    transform: scale(1.1);
+}
+
+.sushi-plate.opened .sushi-item-wrapper {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.sushi-item-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.sushi-piece {
+    position: absolute;
+    width: 50px;
+    height: 25px;
+    left: 50%;
+    top: 50%;
+}
+
+.sushi-piece.p1 {
+    transform: translate(-35px, -15px) rotate(-15deg);
+}
+
+.sushi-piece.p2 {
+    transform: translate(-15px, 5px) rotate(10deg);
+}
+
+.rice {
+    width: 40px;
+    height: 15px;
+    background: #fff;
+    border-radius: 10px 10px 5px 5px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    bottom: 0;
+}
+
+.topping {
+    width: 44px;
+    height: 10px;
+    border-radius: 12px 12px 6px 6px;
+    position: absolute;
+    width: 46px;
+    height: 12px;
+    border-radius: 12px 15px 8px 8px;
+    position: absolute;
+    top: 1px;
+    left: -3px;
+    z-index: 1;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.maguro .topping {
+    background: radial-gradient(ellipse at top, #e53935, #b71c1c);
+}
+
+.salmon .topping {
+    background: #ff7043;
+    background-image: repeating-linear-gradient(110deg,
+            rgba(255, 255, 255, 0.3) 0,
+            rgba(255, 255, 255, 0.3) 2px,
+            transparent 2px,
+            transparent 8px);
+}
+
+.ebi .topping {
+    background: linear-gradient(to right, #ef9a9a, #ffcdd2);
+    clip-path: polygon(0% 20%, 85% 0%, 100% 50%, 85% 100%, 0% 80%);
+    border-top: 2px solid #e57373;
+}
+
+.tamago .topping {
+    background: #ffeb3b;
+    border: 1px solid #fbc02d;
+}
+
+.tamago .topping::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 100%;
+    background: #111;
+    left: 17px;
+}
+
+.hamachi .topping {
+    background: linear-gradient(to bottom, #fffde7, #fff9c4);
+    border-left: 5px solid #ef9a9a;
+}
+
+.ika .topping {
+    background: #fff;
+    border-bottom: 0.5px solid #eee;
+    background-image: radial-gradient(#eee 1px, transparent 1px);
+    background-size: 5px 5px;
+}
+
+.anago .topping {
+    background: #5d4037;
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+    border-top: 1px solid #795548;
+}
+
+/* Gunkan Enhancements */
+.gunkan-nori {
+    width: 44px;
+    height: 30px;
+    background: #000;
+    border-radius: 15px;
+    position: absolute;
+    bottom: -2px;
+    left: -2px;
+    box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1);
+}
+
+.gunkan-top {
+    width: 100%;
+    height: 18px;
+    position: absolute;
+    top: 0;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+}
+
+.ikura .gunkan-top {
+    background: #bf360c;
+    background-image:
+        radial-gradient(circle at 3px 3px, #ff7043 1px, transparent 4px),
+        radial-gradient(circle at 12px 6px, #ff7043 1px, transparent 4px),
+        radial-gradient(circle at 20px 4px, #ff7043 1px, transparent 4px),
+        radial-gradient(circle at 28px 7px, #ff7043 1px, transparent 4px),
+        radial-gradient(circle at 36px 5px, #ff7043 1px, transparent 4px);
+    background-size: 15px 12px;
+}
+
+.uni .gunkan-top {
+    background: #ff8f00;
+    background-image: linear-gradient(45deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%);
+    background-size: 4px 4px;
+}
+
+.sushi-content {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #b71c1c;
+    /* Deep Red */
+    text-shadow:
+        -1px -1px 0 #fff,
+        1px -1px 0 #fff,
+        -1px 1px 0 #fff,
+        1px 1px 0 #fff,
+        2px 2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.qualified-tag {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: #ffeb3b;
+    color: #d32f2f;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1px solid #d32f2f;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+        text-shadow: 0 0 10px #ff0000;
+    }
+
+    to {
+        transform: scale(1.1);
+        text-shadow: 0 0 20px #ff4500;
+    }
+}
+
+/* God Overlay */
+#god-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 150;
+    animation: fadeIn 0.5s;
+}
+
+#god-img {
+    max-height: 90%;
+    max-width: 90%;
+    animation: godDescent 1.5s ease-out;
+}
+
+@keyframes godDescent {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Notice Overlay - Clipped to Reels */
+#notice-overlay {
+    position: absolute;
+    /* Reels Area: X=105, Y=75, W=750, H=450 */
+    top: 75px;
+    left: 105px;
+    width: 750px;
+    height: 450px;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+    /* Clips elements outside reels */
+}
+
+#notice-lightning {
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* Relative to overlay */
+    height: 100%;
+    width: 150px;
+    clip-path: inset(0 0 100% 0);
+    animation: lightningStrike 0.8s linear forwards;
+}
+
+@keyframes lightningStrike {
+    0% {
+        clip-path: inset(0 0 100% 0);
+        opacity: 0.5;
+    }
+
+    40% {
+        clip-path: inset(0 0 0 0);
+        opacity: 1;
+    }
+
+    /* Stay visible */
+    80% {
+        clip-path: inset(0 0 0 0);
+        opacity: 1;
+    }
+
+    100% {
+        /* Disappear from TOP (Bottom remains, Top clips down) */
+        /* inset(top right bottom left) */
+        clip-path: inset(100% 0 0 0);
+        opacity: 0;
+    }
+}
+
+#notice-tornado {
+    position: absolute;
+    top: 0;
+    left: 600px;
+    /* Relative to overlay (Reel 5 starts at 600px) */
+    width: 150px;
+    height: 100%;
+    /* Confined strictly to this column */
+
+    /* "Dimming" effect + Tornado Image */
+    background-color: rgba(0, 0, 0, 0.7);
+    object-fit: cover;
+    /* Fill the column */
+
+    transform-origin: center bottom;
+    animation: tornadoRise 0.8s ease-out forwards;
+}
+
+@keyframes tornadoRise {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    /* Match lightning - stay visible until 80% */
+    80% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    /* Disappear at same time as lightning (100%) */
+    100% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+}
+
+/* Expanded Wilds */
+/* Expanded Wilds - DISABLED (Replaced by Canvas) */
+#expanded-wilds {
+    display: none !important;
+}
+
+.expanded-wild-reel {
+    display: none !important;
+}
